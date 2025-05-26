@@ -25,14 +25,14 @@ def login(fgt_ip, username, secret) -> tuple:
         login_headers = {"Content-Type": "text/plain"}
         response = session.post(urllogin, data=auth_data, headers=login_headers, verify=False)
         if not response.cookies.get_dict():
-            print("Login Failed: No cookies received in response.")
+            print("\nLogin Failed: No cookies received in response.")
             print("Status Code:", response.status_code)
             return None, None
         else:
-            print("Login successful")
+            print("\nLogin successful")
             print("Status Code:", response.status_code)
     except requests.RequestException as e:
-        print("Error during login:", e)
+        print("\nError during login:", e)
         return None, None
 
 # Capturing the session cookie
@@ -163,9 +163,28 @@ def save_response_data(fgt_ip, txt) -> None:
     '''
 
     # Save the response data to a text file in results folder
-    print(f"\nSaving response data to public/Fortinet/fgtAPIfunctions/results/{fgt_ip}_{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")
-    with open(f"public/Fortinet/fgtAPIfunctions/results/{fgt_ip}_{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt", 'w') as file:
+    print(f"\nSaving response data to public/Fortinet/fgtAPIfunctions/results/{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}_{fgt_ip}.txt")
+    with open(f"public/Fortinet/fgtAPIfunctions/results/{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}_{fgt_ip}.txt", 'w') as file:
         file.write(txt)
+
+def file_dict() -> dict:
+    ''' 
+    Reads the fgt_list.txt file and returns a dictionary with FortiGate IPs and ports as keys and empty strings as values.
+    This function is called to read the FortiGate IPs from the fgt_list.txt file.
+    The function returns a dictionary with FortiGate IPs as keys and empty strings as values.
+    '''
+
+    fgt_dict = {"fgt_ip": "", "fgt_port": ""}  # Initialize an empty dictionary
+    with open('public/Fortinet/fgtAPIfunctions/source/fgt_list.txt', 'r') as fgts:
+        fgt_list = fgts.readlines()
+        for line in fgt_list:
+            fgt_ip = line.split(':')[0]
+            fgt_port = line.split(':')[1] if ':' in line else ''
+
+            if fgt_ip:  # Check if the line is not empty
+                fgt_dict["fgt_ip"] = fgt_ip
+                fgt_dict["fgt_port"] = fgt_port
+    return fgt_dict
 
 def testAPIconnection(fgt_ip, username='', secret='') -> bool:
     ''' 
@@ -207,6 +226,7 @@ def testAPIconnection(fgt_ip, username='', secret='') -> bool:
                 print("Session is invalid")
                 txt_login_data += f"Test 1 data:\n{response.status_code}\n"
                 logout(fgt_ip, session, headers)
+                save_response_data(fgt_ip, txt_login_data)
                 return False
                 
         else:
@@ -214,6 +234,7 @@ def testAPIconnection(fgt_ip, username='', secret='') -> bool:
             txt_login_data += "Session is invalid, cannot perform GET request.\n"
             response = None
             logout(fgt_ip, session, headers)
+            save_response_data(fgt_ip, txt_login_data)
             return False
         
     except requests.RequestException as e:
@@ -266,3 +287,7 @@ def testAPIconnection(fgt_ip, username='', secret='') -> bool:
     print(f"\nSaving response data to public/results/{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")
     save_response_data(fgt_ip, txt_login_data)
     return False
+
+
+fgt_dict = file_dict()
+print(fgt_dict)
