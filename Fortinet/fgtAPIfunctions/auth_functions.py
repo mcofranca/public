@@ -163,8 +163,8 @@ def save_response_data(fgt_ip, txt) -> None:
     '''
 
     # Save the response data to a text file in results folder
-    print(f"\nSaving response data to public/results/{fgt_ip}_{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")
-    with open(f"public/results/{fgt_ip}_{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt", 'w') as file:
+    print(f"\nSaving response data to public/Fortinet/fgtAPIfunctions/results/{fgt_ip}_{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")
+    with open(f"public/Fortinet/fgtAPIfunctions/results/{fgt_ip}_{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt", 'w') as file:
         file.write(txt)
 
 def testAPIconnection(fgt_ip, username='', secret='') -> bool:
