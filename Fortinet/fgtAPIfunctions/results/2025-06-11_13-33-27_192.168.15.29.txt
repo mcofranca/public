@@ -1,0 +1,7 @@
+Fortigate IP: 192.168.15.29
+Response data:
+Test 1 URL: https://192.168.15.29:70000/api/v2/monitor/system/status
+
+Test 1 Error: Failed to parse: https://192.168.15.29:70000/api/v2/monitor/system/status
+Response Data: API call failed with the keyFortigate IP: 192.168.15.29
+No username provided, cannot log in.

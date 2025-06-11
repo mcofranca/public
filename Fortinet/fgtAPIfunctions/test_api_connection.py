@@ -11,6 +11,12 @@ fgt_list = fgt_func.file_dict()
 username = input("Enter the username (blank if not required): ")
 secret = gp.getpass("Enter the password or API key: ")
 
+    # Check if the source file exists and is valid
+if not fgt_func.check_src_file():
+    print("Source file fgt_src.txt is not valid or does not exist.")
+    exit(1)
+else:
+    print("Source file fgt_src.txt is valid.")
 
 # Testing Connection with the FortiGate
 for fgt in fgt_list:

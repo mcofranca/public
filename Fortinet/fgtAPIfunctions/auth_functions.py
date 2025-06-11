@@ -18,11 +18,16 @@ def check_src_file() -> bool:
     try:
         with open('public/Fortinet/fgtAPIfunctions/source/fgt_src.txt', 'r') as fgts:
             fgt_src = fgts.readlines()
+            fgt_src_new = ''
             if not fgt_src:
                 print("Source file fgt_src.txt is empty.")
                 return False
+            if len(fgt_src) == 1 and fgt_src[0].strip() == '':
+                print("Source file fgt_src.txt contains only an empty line.")
+                return False
             
-            for line in fgt_src:
+            result = False
+            for i,line in enumerate(fgt_src):
                 if ':' in line:
                     fgt_ip, fgt_port = line.split(':')
                     fgt_ip = fgt_ip.strip()
@@ -30,24 +35,38 @@ def check_src_file() -> bool:
                     try:
                         ipaddress.ip_address(fgt_ip)
                     except ValueError:
-                        print(f"Invalid IP address in source file: {fgt_ip}")
-                        return False
+                        print(f"Invalid IP address in source file: line {i+1}, {fgt_ip}")
+                        continue
                     if not fgt_port.isdigit():
-                        print(f"Invalid port in source file: {fgt_port}")
-                        return False
+                        print(f"Invalid port in source file: line {i+1}, {fgt_port}")
                     else:
                         fgt_port = int(fgt_port)
                         if fgt_port < 1 or fgt_port > 65535:
-                            print(f"Port number out of range in source file: {fgt_port}")
-                            return False
+                            print(f"Port number out of range in source file: line {i+1}, {fgt_port}")
+                        else:
+                            result = True
+                            print(f"Valid entry found: line {i+1}, {fgt_ip}:{fgt_port}")
+                            fgt_src_new += f"\n{fgt_ip}:{fgt_port}"
                 else:
-                    print(f"Invalid format in source file: {line.strip()}")
-                    return False
+                    fgt_ip = line.strip()
+                    try:
+                        ipaddress.ip_address(fgt_ip)
+                        result = True
+                        fgt_src_new += f"\n{fgt_ip}"
+                        print(f"Valid IP address found: line {i+1}, {fgt_ip}")
+                    except ValueError:
+                        print(f"Invalid IP address in source file: line {i+1}, {fgt_ip}")
+            if not result:
+                print("Source file fgt_src.txt contains only invalid IP addresses or ports.")
+                return False
+
             print("Source file fgt_src.txt is valid.")
             return True
     except FileNotFoundError:
         print("Source file fgt_src.txt not found in public/Fortinet/fgtAPIfunctions/source/")
         return False
+    
+
 
 def login(fgt_ip, username, secret, port=10443) -> tuple:
     ''' 
@@ -244,11 +263,6 @@ def testAPIconnection(fgt_ip, username='', secret='', port=10443) -> bool:
     The session and headers are passed as arguments to the function.
     The function checks if the session and headers are valid before attempting to make a GET request.
     '''
-
-    # Check if the source file exists and is valid
-    # if not check_src_file():
-    #     print("Source file fgt_src.txt is not valid or does not exist.")
-    #     return False
 
     # Testing the API with the provided API key
     if not secret:
