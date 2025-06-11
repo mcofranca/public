@@ -1,11 +1,55 @@
 import requests
 import urllib3
+import ipaddress
 from datetime import datetime  as dt
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def login(fgt_ip, username, secret) -> tuple:
+def check_src_file() -> bool:
+    ''' 
+    Checks if the source file fgt_src.txt exists in the specified directory.
+    Checks if IP addresses and ports are provided and are correct in the source file.
+    The source file should be located in public/Fortinet/fgtAPIfunctions/source/fgt_src.txt.
+
+    This function is called to ensure that the source file is present and is correctly formatted before proceeding with any operations.
+    Returns True if the file is valid, otherwise returns False.
+    '''
+    try:
+        with open('public/Fortinet/fgtAPIfunctions/source/fgt_src.txt', 'r') as fgts:
+            fgt_src = fgts.readlines()
+            if not fgt_src:
+                print("Source file fgt_src.txt is empty.")
+                return False
+            
+            for line in fgt_src:
+                if ':' in line:
+                    fgt_ip, fgt_port = line.split(':')
+                    fgt_ip = fgt_ip.strip()
+                    fgt_port = fgt_port.strip()
+                    try:
+                        ipaddress.ip_address(fgt_ip)
+                    except ValueError:
+                        print(f"Invalid IP address in source file: {fgt_ip}")
+                        return False
+                    if not fgt_port.isdigit():
+                        print(f"Invalid port in source file: {fgt_port}")
+                        return False
+                    else:
+                        fgt_port = int(fgt_port)
+                        if fgt_port < 1 or fgt_port > 65535:
+                            print(f"Port number out of range in source file: {fgt_port}")
+                            return False
+                else:
+                    print(f"Invalid format in source file: {line.strip()}")
+                    return False
+            print("Source file fgt_src.txt is valid.")
+            return True
+    except FileNotFoundError:
+        print("Source file fgt_src.txt not found in public/Fortinet/fgtAPIfunctions/source/")
+        return False
+
+def login(fgt_ip, username, secret, port=10443) -> tuple:
     ''' 
     The logout function  should be called at the end of the script to ensure proper session termination.
     Logs in to FortiGate and returns the session and headers required for authentication.
@@ -16,7 +60,8 @@ def login(fgt_ip, username, secret) -> tuple:
 
     # Defining Session parameters
     session = requests.Session()
-    urlbase = "http://" + fgt_ip # Fortigate in the lab is not licensed for HTTPS
+    urlbase = f"http://{fgt_ip}" if port == 80 else f"https://{fgt_ip}:{port}"
+
     urllogin = urlbase + "/logincheck"
     auth_data = {'username': username, 'secretkey': secret}
 
@@ -65,7 +110,7 @@ def login(fgt_ip, username, secret) -> tuple:
     # Do NOT set Content-Type globally on session
     return session, headers
 
-def user_api(fgt_ip, api_key) -> tuple:
+def user_api(fgt_ip, api_key, port=10443) -> tuple:
     """
     This function is used to test the FortiGate API using the provided API key.
     It makes GET requests to two different endpoints and prints the response status and data.
@@ -77,8 +122,9 @@ def user_api(fgt_ip, api_key) -> tuple:
 
     # Defining Session parameters
     session = requests.Session()
-    url1 = f'http://{fgt_ip}/api/v2/monitor/system/status'
-    url2 = f'http://{fgt_ip}/api/v2/cmdb/system/settings'
+    url_base = f"http://{fgt_ip}" if port == 80 else f"https://{fgt_ip}:{port}"
+    url1 = f'{url_base}/api/v2/monitor/system/status'
+    url2 = f'{url_base}/api/v2/cmdb/system/settings'
     headers = {'Authorization': f'Bearer {api_key}'}
 
     txt_api_admin_data = "Response data:"
@@ -86,7 +132,12 @@ def user_api(fgt_ip, api_key) -> tuple:
     # Testing the first endpoint API call
     print("\nTesting API call to:", url1)
     txt_api_admin_data += f"\nTest 1 URL: {url1}\n"
-    response = session.get(url1, headers=headers, verify=False)
+    try:
+        response = session.get(url1, headers=headers, verify=False)
+    except requests.RequestException as e:
+        print("Error during API call:\n", e)
+        txt_api_admin_data += f"\nTest 1 Error: {e}"
+        return False, txt_api_admin_data
 
 
     if response.status_code == 200:
@@ -116,7 +167,7 @@ def user_api(fgt_ip, api_key) -> tuple:
 
     return False, txt_api_admin_data
 
-def logout(fgt_ip, session, headers) -> None:
+def logout(fgt_ip, session, headers, port=10443) -> None: 
     ''' 
     Performs logout from FortiGate.
     The login function should be called only once at the beginning of the script.
@@ -127,7 +178,7 @@ def logout(fgt_ip, session, headers) -> None:
 
     '''
 
-    urlbase = "http://" + fgt_ip
+    urlbase = f"http://{fgt_ip}" if port == 80 else f"https://{fgt_ip}:{port}"
     urllogout = urlbase + "/logout"
 
     if session is None:
@@ -167,26 +218,26 @@ def save_response_data(fgt_ip, txt) -> None:
     with open(f"public/Fortinet/fgtAPIfunctions/results/{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}_{fgt_ip}.txt", 'w') as file:
         file.write(txt)
 
-def file_dict() -> dict:
+def file_dict() -> list:
     ''' 
-    Reads the fgt_list.txt file and returns a dictionary with FortiGate IPs and ports as keys and empty strings as values.
-    This function is called to read the FortiGate IPs from the fgt_list.txt file.
+    Reads the fgt_src.txt file and returns a dictionary with FortiGate IPs and ports as keys and empty strings as values.
+    This function is called to read the FortiGate IPs from the fgt_src.txt file.
     The function returns a dictionary with FortiGate IPs as keys and empty strings as values.
     '''
-
-    fgt_dict = {"fgt_ip": "", "fgt_port": ""}  # Initialize an empty dictionary
-    with open('public/Fortinet/fgtAPIfunctions/source/fgt_list.txt', 'r') as fgts:
-        fgt_list = fgts.readlines()
-        for line in fgt_list:
-            fgt_ip = line.split(':')[0]
-            fgt_port = line.split(':')[1] if ':' in line else ''
+    fgt_list = []
+    with open('public/Fortinet/fgtAPIfunctions/source/fgt_src.txt', 'r') as fgts:
+        fgt_src = fgts.readlines()
+        for line in fgt_src:
+            fgt_ip = line.split(':')[0].strip() if ':' in line else line.strip()
+            fgt_port = line.split(':')[1].strip() if ':' in line else "10443"
 
             if fgt_ip:  # Check if the line is not empty
-                fgt_dict["fgt_ip"] = fgt_ip
-                fgt_dict["fgt_port"] = fgt_port
-    return fgt_dict
+                fgt_dict = {"fgt_ip": fgt_ip, "fgt_port": fgt_port}
+                fgt_list.append(fgt_dict)
 
-def testAPIconnection(fgt_ip, username='', secret='') -> bool:
+    return fgt_list
+
+def testAPIconnection(fgt_ip, username='', secret='', port=10443) -> bool:
     ''' 
     Tests the session by making a GET request to the FortiGate API.
     This function is called to verify if the session is still valid and can be used for further API calls.
@@ -194,21 +245,43 @@ def testAPIconnection(fgt_ip, username='', secret='') -> bool:
     The function checks if the session and headers are valid before attempting to make a GET request.
     '''
 
-    bool_api_admin_result, txt_api_admin_data = user_api(fgt_ip, secret)
+    # Check if the source file exists and is valid
+    # if not check_src_file():
+    #     print("Source file fgt_src.txt is not valid or does not exist.")
+    #     return False
 
-    txt_api_admin_data = f"Fortigate IP: {fgt_ip}\n" + txt_api_admin_data
-
-    if bool_api_admin_result == True:
-        print("API call successful with the key")
-        save_response_data(fgt_ip, txt_api_admin_data)
-        return True
+    # Testing the API with the provided API key
+    if not secret:
+        print("No API key provided, cannot perform API tests.")
+        txt_api_admin_data = f"Fortigate IP: {fgt_ip}\nNo API key provided, cannot perform API tests.\n"
+        logs = txt_api_admin_data
     else:
-        print("API call failed with the key")
-        txt_api_admin_data += "\nResponse Data:"
+        bool_api_admin_result, txt_api_admin_data = user_api(fgt_ip, secret, port=port)
+        txt_api_admin_data = f"Fortigate IP: {fgt_ip}\n" + txt_api_admin_data
+        if bool_api_admin_result == True:
+            print("API call successful with the key")
+            logs = txt_api_admin_data
+            save_response_data(fgt_ip, logs)
+            return True
+        else:
+            print("API call failed with the key")
+            txt_api_admin_data += "\nResponse Data: API call failed with the key"
+            logs = txt_api_admin_data
 
-
-    urlbase = "http://" + fgt_ip
-    session, headers = login(fgt_ip, username, secret)
+    # If username and secret are provided, proceed with login
+    if not username:
+        print("No username provided, cannot log in.")
+        txt_login_data = f"Fortigate IP: {fgt_ip}\nNo username provided, cannot log in.\n"
+        logs += txt_login_data
+        save_response_data(fgt_ip, logs)
+        return False
+    urlbase = f"http://{fgt_ip}" if port == 80 else f"https://{fgt_ip}:{port}"
+    session, headers = login(fgt_ip, username, secret, port=port)
+    if session is None or headers is None:
+        print("Login failed, cannot perform API tests.")
+        txt_login_data = f"Fortigate IP: {fgt_ip}\nLogin failed, cannot perform API tests.\n"
+        logs += txt_login_data
+        result = False
 
     txt_login_data = f"Fortigate IP: {fgt_ip}\n"
 
@@ -226,24 +299,24 @@ def testAPIconnection(fgt_ip, username='', secret='') -> bool:
                 print("Session is invalid")
                 txt_login_data += f"Test 1 data:\n{response.status_code}\n"
                 logout(fgt_ip, session, headers)
-                save_response_data(fgt_ip, txt_login_data)
-                return False
+                logs += txt_login_data
+                result = False
                 
         else:
             print("Session is invalid, cannot perform GET request.")
             txt_login_data += "Session is invalid, cannot perform GET request.\n"
             response = None
             logout(fgt_ip, session, headers)
-            save_response_data(fgt_ip, txt_login_data)
-            return False
-        
+            logs += txt_login_data
+            result = False
+
     except requests.RequestException as e:
         print("Error during session test:", e)
         txt_login_data += f"Error during session test: {e}\n"
         response = None
         logout(fgt_ip, session, headers)
-        save_response_data(fgt_ip, txt_login_data)
-        return False
+        logs += txt_login_data
+        result = False
 
     #Test 2
     try:
@@ -258,36 +331,37 @@ def testAPIconnection(fgt_ip, username='', secret='') -> bool:
 
                 txt_login_data += f"Test 2 monitor response:\n{response.text}\n"
                 logout(fgt_ip, session, headers)
-                save_response_data(fgt_ip, txt_login_data)
-                return True 
-            
+                logs += txt_login_data
+                result = True
+
             else:
                 print("Session is invalid")
                 txt_login_data += f"Test 2 monitor response: {response.status_code}\n"
                 logout(fgt_ip, session, headers)
-                save_response_data(fgt_ip, txt_login_data)
-                return False
-                
+                logs += txt_login_data
+                result = False
+
         else:
             print("Session is invalid, cannot perform GET request.")
             txt_login_data += "Session is invalid, cannot perform GET request.\n"
             response = None
             logout(fgt_ip, session, headers)
-            save_response_data(fgt_ip, txt_login_data)
-            return False
-        
+            logs += txt_login_data
+            result = False
+
     except requests.RequestException as e:
         print("Error during session test:", e)
         txt_login_data += f"Error during session test: {e}\n"
+        result = False
         response = None
 
-    logout(fgt_ip, session, headers)
+    logout(fgt_ip, session, headers, port=port)
 
     # Save the response data to a text file in results folder
-    print(f"\nSaving response data to public/results/{dt.now().strftime('%Y-%m-%d_%H-%M-%S')}.txt")
-    save_response_data(fgt_ip, txt_login_data)
-    return False
+    logs = txt_api_admin_data + "\n" + txt_login_data
+    save_response_data(fgt_ip, logs)
+    # result = False
+    return result
 
-
-fgt_dict = file_dict()
-print(fgt_dict)
+# print(user_api("192.168.1.1", "api_key"))
+# print(testAPIconnection("192.168.15.29", "admin", "admin", 80))
