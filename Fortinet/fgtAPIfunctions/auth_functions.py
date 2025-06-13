@@ -1,7 +1,6 @@
 import requests
 import urllib3
 import ipaddress
-from datetime import datetime  as dt
 
 # Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
