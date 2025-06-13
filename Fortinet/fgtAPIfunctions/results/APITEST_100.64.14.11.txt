@@ -78,3 +78,21 @@ Test 1 URL: https://100.64.14.11:10443/api/v2/monitor/system/status
 Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=10443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000002141A647410>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))
 Response Data: API call failed with the key
 Login failed, cannot perform API tests.
+----------------------------------------
+2025-06-13 14:27:47 - Fortigate IP: 100.64.14.11 - Port: 443
+Test 1 URL: http:///api/v2/monitor/system/status
+Test 1 Error: Invalid URL 'http:///api/v2/monitor/system/status': No host supplied
+Response Data: API call failed with the key
+Login failed, cannot perform API tests.
+----------------------------------------
+2025-06-13 14:30:50 - Fortigate IP: 100.64.14.11 - Port: 443
+Test 1 URL: https://100.64.14.11/api/v2/monitor/system/status
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x0000021A14EE7410>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))
+Response Data: API call failed with the key
+Login failed, cannot perform API tests.
+----------------------------------------
+2025-06-13 14:34:00 - Fortigate IP: 100.64.14.11 - Port: 443
+Test 1 URL: https://100.64.14.11/api/v2/monitor/system/status
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001F81DC37410>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))
+Response Data: API call failed with the keyFortigate IP: 100.64.14.11
+No username provided, cannot log in.

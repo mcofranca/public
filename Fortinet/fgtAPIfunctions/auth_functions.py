@@ -60,7 +60,7 @@ def check_src_file() -> bool:
                 ipaddress.ip_address(fgt_ip)
                 result = True
                 fgt_src_new += f"\n{fgt_ip}"
-                print(f"Valid IP address found: line {i+1}, {fgt_ip} (default port 10443 will be used)")
+                print(f"Valid IP address found: line {i+1}, {fgt_ip} (default port 443 will be used)")
             except ValueError:
                 print(f"Invalid IP address in source file: line {i+1}, {fgt_ip}")
     if not result:
@@ -73,7 +73,7 @@ def check_src_file() -> bool:
     print("Source file fgt_src.txt is valid.")
     return True
 
-def login(fgt_ip, username, secret, port=10443) -> tuple:
+def login(fgt_ip, username, secret, port=443) -> tuple:
     ''' 
     The logout function  should be called at the end of the script to ensure proper session termination.
     Logs in to FortiGate and returns the session and headers required for authentication.
@@ -84,9 +84,16 @@ def login(fgt_ip, username, secret, port=10443) -> tuple:
 
     # Defining Session parameters
     session = requests.Session()
-    urlbase = f"http://{fgt_ip}" if port == 80 else f"https://{fgt_ip}:{port}"
 
-    urllogin = urlbase + "/logincheck"
+    if port < 1 or port > 65535 or not isinstance(port, int):
+        print(f"Invalid port number: {port}. Using default port 443.")
+        port = 443
+
+    url_base = f"http://{fgt_ip}" if port == 80 else f"https://{fgt_ip}"
+    if port != 80 and port != 443:
+        url_base = f"https://{fgt_ip}:{port}"
+
+    urllogin = url_base + "/logincheck"
     print(f"Logging in to FortiGate at {urllogin}")
     auth_data = {'username': username, 'secretkey': secret}
 
@@ -135,7 +142,7 @@ def login(fgt_ip, username, secret, port=10443) -> tuple:
     # Do NOT set Content-Type globally on session
     return session, headers
 
-def user_api(fgt_ip, api_key, port=10443) -> tuple:
+def user_api(fgt_ip, api_key, port=443) -> tuple:
     """
     This function is used to test the FortiGate API using the provided API key.
     It makes GET requests to two different endpoints and prints the response status and data.
@@ -147,7 +154,14 @@ def user_api(fgt_ip, api_key, port=10443) -> tuple:
 
     # Defining Session parameters
     session = requests.Session()
-    url_base = f"http://{fgt_ip}" if port == 80 else f"https://{fgt_ip}:{port}"
+    if port < 1 or port > 65535 or not isinstance(port, int):
+        print(f"Invalid port number: {port}. Using default port 443.")
+        port = 443
+
+    url_base = f"http://{fgt_ip}" if port == 80 else f"https://{fgt_ip}"
+    if port != 80 and port != 443:
+        url_base = f"https://{fgt_ip}:{port}"
+
     url1 = f'{url_base}/api/v2/monitor/system/status'
     url2 = f'{url_base}/api/v2/cmdb/system/settings'
     headers = {'Authorization': f'Bearer {api_key}'}
@@ -192,7 +206,7 @@ def user_api(fgt_ip, api_key, port=10443) -> tuple:
 
     return False, txt_api_admin_data
 
-def logout(fgt_ip, session, headers, port=10443) -> None: 
+def logout(fgt_ip, session, headers, port=443) -> None: 
     ''' 
     Performs logout from FortiGate.
     The login function should be called only once at the beginning of the script.
@@ -254,7 +268,7 @@ def src_file_to_dict() -> list:
         fgt_src = fgts.readlines()
         for line in fgt_src:
             fgt_ip = line.split(':')[0].strip() if ':' in line else line.strip()
-            fgt_port = line.split(':')[1].strip() if ':' in line else "10443"
+            fgt_port = line.split(':')[1].strip() if ':' in line else "443"
 
             if fgt_ip:  # Check if the line is not empty
                 fgt_dict = {"fgt_ip": fgt_ip, "fgt_port": fgt_port}

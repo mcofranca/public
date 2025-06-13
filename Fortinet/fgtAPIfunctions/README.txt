@@ -5,3 +5,7 @@ test_api_connections = Testing API requests by key or login
 
 fgt_scr format:
 [IP ADDRESS]:[HTTP ACCESS PORT]
+
+example:
+
+192.168.1.1:10443
