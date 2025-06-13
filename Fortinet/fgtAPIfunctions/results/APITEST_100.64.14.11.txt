@@ -1,0 +1,55 @@
+
+----------------------------------------
+{'2025-06-13 11:01:29'} - Fortigate IP: 100.64.14.11 - Port: 10443
+Fortigate IP: 100.64.14.11
+No API key provided, cannot perform API tests.
+Fortigate IP: 100.64.14.11
+No username provided, cannot log in.
+
+----------------------------------------
+{'2025-06-13 11:06:01'} - Fortigate IP: 100.64.14.11 - Port: 10443
+Response data:
+Test 1 URL: https://100.64.14.11:10443/api/v2/monitor/system/status
+
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=10443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000202F9AEB050>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))Response Data: API call failed with the keyFortigate IP: 100.64.14.11
+No username provided, cannot log in.
+
+----------------------------------------
+2025-06-13 11:06:55 - Fortigate IP: 100.64.14.11 - Port: 10443
+Response data:
+Test 1 URL: https://100.64.14.11:10443/api/v2/monitor/system/status
+
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=10443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000002098C16B050>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))Response Data: API call failed with the keyLogin failed, cannot perform API tests.
+
+----------------------------------------
+2025-06-13 11:08:33 - Fortigate IP: 100.64.14.11 - Port: 10443
+Response data:
+Test 1 URL: https://100.64.14.11:10443/api/v2/monitor/system/status
+
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=10443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000204E33AB050>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))Response Data: API call failed with the keyLogin failed, cannot perform API tests.
+
+----------------------------------------
+2025-06-13 11:17:43 - Fortigate IP: 100.64.14.11 - Port: 10443
+Test 1 URL: https://100.64.14.11:10443/api/v2/monitor/system/status
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=10443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000145A767EC10>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))Response Data: API call failed with the keyLogin failed, cannot perform API tests.
+
+----------------------------------------
+2025-06-13 11:24:25 - Fortigate IP: 100.64.14.11 - Port: 10443
+Test 1 URL: https://100.64.14.11:10443/api/v2/monitor/system/status
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=10443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000177918BADD0>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))
+Response Data: API call failed with the key
+Login failed, cannot perform API tests.
+
+----------------------------------------
+2025-06-13 11:26:18 - Fortigate IP: 100.64.14.11 - Port: 10443
+Test 1 URL: https://100.64.14.11:10443/api/v2/monitor/system/status
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=10443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000207E6671210>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))
+Response Data: API call failed with the key
+Login failed, cannot perform API tests.
+
+----------------------------------------
+2025-06-13 11:35:50 - Fortigate IP: 100.64.14.11 - Port: 10443
+Test 1 URL: https://100.64.14.11:10443/api/v2/monitor/system/status
+Test 1 Error: HTTPSConnectionPool(host='100.64.14.11', port=10443): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x000001E57CF4EBD0>, 'Connection to 100.64.14.11 timed out. (connect timeout=None)'))
+Response Data: API call failed with the key
+Login failed, cannot perform API tests.

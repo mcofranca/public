@@ -1,2 +1,0 @@
-Fortigate IP: 100.64.14.14
-Session is invalid, cannot perform GET request.
