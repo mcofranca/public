@@ -182,7 +182,7 @@ def user_api(fgt_ip, api_key, port=10443) -> tuple:
     response = session.get(url2, headers=headers, verify=False)
 
     if response.status_code == 200:
-        print("\nTest 2 API call successful")
+        print("Test 2 API call successful")
         txt_api_admin_data += f"\nTest 2 URL: {url2}\n"
         txt_api_admin_data += f"\nTest 2 Response data:\n{response.text}"
         return True, txt_api_admin_data
