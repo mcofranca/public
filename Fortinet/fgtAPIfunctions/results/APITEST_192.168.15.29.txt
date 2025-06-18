@@ -2805,3 +2805,9 @@ Test 2 Response data:
   "version":"v7.0.3",
   "build":237
 }
+----------------------------------------
+2025-06-18 15:53:03 - Fortigate IP: 192.168.15.29 - Port: 80
+Test 1 URL: http://192.168.15.29/api/v2/monitor/system/status
+Test 1 Error: HTTPConnectionPool(host='192.168.15.29', port=80): Max retries exceeded with url: /api/v2/monitor/system/status (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001AF3C7C1810>, 'Connection to 192.168.15.29 timed out. (connect timeout=None)'))
+Response Data: API call failed with the key
+Login failed, cannot perform API tests.

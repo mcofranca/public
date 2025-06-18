@@ -4,11 +4,6 @@ import requests
 from datetime import datetime as dt
 from auth_functions import login, logout, user_api, save_response_data, check_src_file, src_file_to_dict
 
-# endpoint parameters
-# with open('public/Fortinet/fgtAPIfunctions/source/fgt_src.txt', 'r') as fgts:
-#     fgt_list = [line.strip() for line in fgts]
-
-
 
 username = input("Enter the username (blank if not required): ")
 secret = gp.getpass("Enter the password or API key: ")
