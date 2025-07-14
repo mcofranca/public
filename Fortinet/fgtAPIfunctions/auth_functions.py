@@ -97,9 +97,10 @@ def login(fgt_ip, username, secret, port=443) -> tuple:
     print(f"Logging in to FortiGate at {urllogin}")
     auth_data = {'username': username, 'secretkey': secret}
 
-    # Session post
+    # Session login attempt
+    response = None
     try:
-        login_headers = {"Content-Type": "text/plain"}
+        login_headers = {"Content-Type": "text/plain"} # prevent session drop
         response = session.post(urllogin, data=auth_data, headers=login_headers, verify=False)
         if not response.cookies.get_dict():
             print("Login Failed: No cookies received in response.")
